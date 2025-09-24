@@ -7,3 +7,53 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id             Int              @id @default(autoincrement())
+  name           String
+  email          String           @unique
+  password       String
+  education      String?          // e.g. B.Tech, ITI, Diploma
+  skills         String[]         // ["Python", "SQL"]
+  interests      String[]         // ["AI", "Finance"]
+  location       String?          // e.g. "Delhi"
+  recommendations Recommendation[] // relation to recs
+  applications   Application[]
+  createdAt      DateTime @default(now())
+}
+
+model Internship {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  skillsNeeded String[] // ["Python", "Data Analysis"]
+  category     String   // e.g. "IT", "Healthcare"
+  location     String
+  companyName  String
+  postedBy     String   // company email or admin id
+  createdAt    DateTime @default(now())
+  recommendations Recommendation[]
+  applications   Application[]
+}
+
+model Recommendation {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  internshipId Int
+  score        Float
+  createdAt    DateTime @default(now())
+
+  user         User       @relation(fields: [userId], references: [id])
+  internship   Internship @relation(fields: [internshipId], references: [id])
+}
+
+model Application {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  internshipId Int
+  status       String   @default("pending") // pending, accepted, rejected
+  appliedAt    DateTime @default(now())
+
+  user         User       @relation(fields: [userId], references: [id])
+  internship   Internship @relation(fields: [internshipId], references: [id])
+}
