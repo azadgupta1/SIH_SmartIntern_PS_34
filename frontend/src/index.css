@@ -1,1 +1,63 @@
 @import "tailwindcss";
+
+/* Fix slider overflow issues */
+.slick-list {
+  margin: 0 -10px;
+}
+
+.slick-slide {
+  padding: 0 10px;
+}
+
+.slick-track {
+  display: flex;
+  align-items: stretch;
+}
+
+.slick-slide > div {
+  height: 100%;
+}
+
+/* Arrow positioning */
+.slick-prev {
+  left: -25px;
+}
+
+.slick-next {
+  right: -25px;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  color: #000;
+  font-size: 20px;
+}
+
+/* Dots positioning */
+.slick-dots {
+  bottom: -40px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .slick-list {
+    margin: 0 -5px;
+  }
+
+  .slick-slide {
+    padding: 0 5px;
+  }
+
+  .slick-prev {
+    left: -15px;
+  }
+
+  .slick-next {
+    right: -15px;
+  }
+}
+
+/* Ensure cards don't overflow */
+.slick-slide {
+  height: inherit;
+}
