@@ -86,7 +86,7 @@ export default function Home() {
       {/* Section Header */}
       <div className="max-w-7xl mx-auto mb-6 sm:mb-8 md:mb-12">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-2">
-          Featured Internships
+          Recommended Internships
         </h2>
         <p className="text-gray-600 text-sm sm:text-base md:text-lg text-center max-w-2xl mx-auto">
           Discover the latest internship opportunities from top companies

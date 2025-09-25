@@ -29,7 +29,7 @@ const Navbar = () => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
-    <nav className="w-full flex flex-col shadow-md">
+    <nav className="w-full flex flex-col shadow-md border-gray-800 border-b-1">
       {/* Top Black Bar */}
       <div className="w-full bg-black text-white flex flex-wrap items-center justify-between py-1 px-2">
         <div className="flex items-center">
