@@ -3,26 +3,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 
-// export const register = async (req, res) => {
-//   try {
-//     const { name, email, password, education, skills, interests, location } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     const user = await prisma.user.create({
-//       data: { name, email, password: hashedPassword, education, skills, interests, location },
-//     });
-
-//     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-//     res.json({user, token});
-//   } catch (err) {
-//     res.status(500).json({ error: "Registration failed", details: err.message });
-//   }
-// };
-
-
-
-
 export const register = async (req, res) => {
   try {
     const {
