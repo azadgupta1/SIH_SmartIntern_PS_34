@@ -8,18 +8,19 @@ import ministry from "../assets/MCA.svg";
 import pm from "../assets/pm_internship_logo_eng.svg";
 
 const indianLanguages = [
-  "English",
-  "Hindi",
-  "Bengali",
-  "Marathi",
-  "Telugu",
-  "Tamil",
-  "Gujarati",
-  "Urdu",
-  "Kannada",
-  "Odia",
-  "Malayalam",
+  "English",                // English
+  "हिन्दी",                 // Hindi
+  "বাংলা",                  // Bengali
+  "मराठी",                  // Marathi
+  "తెలుగు",                // Telugu
+  "தமிழ்",                  // Tamil
+  "ગુજરાતી",                // Gujarati
+  "اردو",                   // Urdu
+  "ಕನ್ನಡ",                  // Kannada
+  "ଓଡ଼ିଆ",                 // Odia
+  "മലയാളം",                 // Malayalam
 ];
+
 
 const Navbar = () => {
   const [isMuted, setIsMuted] = useState(false);

@@ -5,7 +5,21 @@ import "slick-carousel/slick/slick-theme.css";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
+  const [internships, setInternships] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  const parseSkills = (skillsString) => {
+    if (!skillsString) return [];
+    if (Array.isArray(skillsString)) return skillsString;
+    try {
+      return JSON.parse(skillsString.replace(/'/g, '"'));
+    } catch {
+      return [skillsString]; // fallback: show as plain text
+    }
+  };
+
+
+  // Detect screen size
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -16,6 +30,48 @@ export default function Home() {
 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Fetch recommendations
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3000/api/recommend", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        console.log("RAW API RESPONSE:", data);
+
+        let recs = [];
+
+        if (Array.isArray(data)) {
+          recs = data; // ✅ backend returned plain array
+        } else if (data.recommendations) {
+          recs = data.recommendations; // ✅ backend returned wrapped object
+        }
+
+        if (recs.length > 0) {
+          const parsed = recs.map((r) => ({
+            ...r,
+            skillsNeeded: parseSkills(r.skillsNeeded),
+            description:
+              r.description ||
+              "No description available. Please check details before applying.",
+            postedBy: r.companyName || "Unknown",
+          }));
+          console.log("PARSED RECOMMENDATIONS:", parsed);
+          setInternships(parsed);
+        }
+      } catch (err) {
+        console.error("Error fetching recommendations:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, []);
+
 
   const settings = {
     dots: true,
@@ -30,37 +86,21 @@ export default function Home() {
     centerPadding: isMobile ? "20px" : "0px",
     adaptiveHeight: true,
     responsive: [
+      { breakpoint: 1280, settings: { slidesToShow: 3, centerMode: false } },
+      { breakpoint: 1024, settings: { slidesToShow: 2, centerMode: false } },
       {
-        breakpoint: 1280, // Large screens
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          centerMode: false,
-        },
-      },
-      {
-        breakpoint: 1024, // Tablets landscape
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          centerMode: false,
-        },
-      },
-      {
-        breakpoint: 768, // Tablets portrait
+        breakpoint: 768,
         settings: {
           slidesToShow: 1,
-          slidesToScroll: 1,
           centerMode: true,
           centerPadding: "60px",
           arrows: false,
         },
       },
       {
-        breakpoint: 640, // Mobile landscape
+        breakpoint: 640,
         settings: {
           slidesToShow: 1,
-          slidesToScroll: 1,
           centerMode: true,
           centerPadding: "40px",
           arrows: false,
@@ -68,10 +108,9 @@ export default function Home() {
         },
       },
       {
-        breakpoint: 480, // Mobile portrait
+        breakpoint: 480,
         settings: {
           slidesToShow: 1,
-          slidesToScroll: 1,
           centerMode: true,
           centerPadding: "20px",
           arrows: false,
@@ -93,21 +132,35 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Carousel Container */}
+      {/* Carousel */}
       <div className="max-w-7xl mx-auto">
-        <Slider {...settings}>
-          {internships.map((data) => (
-            <div
-              key={data.id}
-              className="px-1 sm:px-2 md:px-3 focus:outline-none"
-            >
-              <InternshipCard internship={data} />
-            </div>
-          ))}
-        </Slider>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-10">
+            <div className="w-10 h-10 border-4 border-blue-800 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-center text-gray-500 mt-4">
+              Loading recommendations...
+            </p>
+          </div>
+        ) : internships.length === 0 ? (
+          <p className="text-center text-gray-500 py-10">
+            No recommendations found.
+          </p>
+        ) : (
+          <Slider {...settings}>
+            {internships.map((data) => (
+              <div
+                key={data.id}
+                className="px-1 sm:px-2 md:px-3 focus:outline-none"
+              >
+                <InternshipCard internship={data} />
+              </div>
+            ))}
+          </Slider>
+        )}
+
       </div>
 
-      {/* Mobile Indicators */}
+      {/* Mobile Hint */}
       {isMobile && (
         <div className="text-center mt-4">
           <p className="text-sm text-gray-500">Swipe to navigate</p>
@@ -117,134 +170,65 @@ export default function Home() {
   );
 }
 
-// Enhanced InternshipCard Component
+
+// Internship Card (Professional Look)
 const InternshipCard = ({ internship }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 mx-auto w-full h-full flex flex-col transform hover:-translate-y-1">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 mx-auto w-full h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3 sm:p-4 text-white">
-        <h3 className="text-base sm:text-lg font-bold truncate">
+      <div className="bg-blue-800 text-white px-4 py-3 border-b border-gray-200">
+        <h3 className="text-sm sm:text-base font-semibold text-white truncate">
           {internship.title}
         </h3>
-        <p className="text-blue-100 text-xs sm:text-sm truncate mt-1">
+        <p className="text-gray-200 text-xs truncate mt-0.5">
           {internship.companyName}
         </p>
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-4 flex-1 flex flex-col">
-        <div className="mb-3 flex flex-wrap gap-2">
-          <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="flex flex-wrap gap-2 mb-2">
+          <span className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded border border-blue-100">
             {internship.category}
           </span>
-          <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+          <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded border border-green-100">
             {internship.location}
           </span>
         </div>
 
-        <p className="text-gray-600 text-xs sm:text-sm mb-4 line-clamp-3 flex-1 leading-relaxed">
+        <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed">
           {internship.description}
         </p>
 
         {/* Skills */}
-        <div className="mb-4">
-          <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-            Skills Required:
-          </h4>
-          <div className="flex flex-wrap gap-1">
-            {internship.skillsNeeded.map((skill, index) => (
-              <span
-                key={index}
-                className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-              >
-                {skill}
-              </span>
-            ))}
+        {internship.skillsNeeded?.length > 0 && (
+          <div className="mb-3">
+            <h4 className="text-xs font-medium text-gray-700 mb-1">
+              Skills:
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {internship.skillsNeeded.map((skill, index) => (
+                <span
+                  key={index}
+                  className="bg-gray-50 border border-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Additional Info */}
-        <div className="mt-auto pt-3 border-t border-gray-100">
-          <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
-            <span>Posted by: {internship.postedBy.split("@")[0]}</span>
-          </div>
-
-          {/* Apply Button */}
-          <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors duration-200 font-medium text-sm active:scale-95 transform transition-transform">
-            Apply Now
+        {/* Footer */}
+        <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between">
+          <span className="text-[11px] text-gray-500">
+            Posted by {internship.postedBy || "N/A"}
+          </span>
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium transition">
+            Apply
           </button>
         </div>
       </div>
     </div>
   );
 };
-
-// Sample internship data
-const internships = [
-  {
-    id: 1,
-    title: "Product Management Intern",
-    description:
-      "Assist in market research, competitor analysis, and product roadmap planning. Work with cross-functional teams to deliver product improvements.",
-    skillsNeeded: ["Communication", "Market Research", "Data Analysis"],
-    category: "IT",
-    location: "Bangalore, India",
-    companyName: "TechNova Solutions",
-    postedBy: "hr@technova.com",
-  },
-  {
-    id: 2,
-    title: "Data Science Intern",
-    description:
-      "Support the analytics team in building predictive models and analyzing large datasets to extract insights.",
-    skillsNeeded: ["Python", "Machine Learning", "Data Visualization"],
-    category: "IT",
-    location: "Pune, India",
-    companyName: "Insight Analytics",
-    postedBy: "careers@insightanalytics.com",
-  },
-  {
-    id: 3,
-    title: "Healthcare Management Intern",
-    description:
-      "Work with the hospital administration team to optimize patient scheduling and healthcare workflows.",
-    skillsNeeded: ["Excel", "Process Optimization", "Communication"],
-    category: "Healthcare",
-    location: "Mumbai, India",
-    companyName: "MediCare Hospitals",
-    postedBy: "admin@medicare.com",
-  },
-  {
-    id: 4,
-    title: "Marketing & PM Intern",
-    description:
-      "Collaborate with product managers to create go-to-market strategies and monitor product performance.",
-    skillsNeeded: ["Marketing", "Presentation", "Product Strategy"],
-    category: "Business",
-    location: "Delhi, India",
-    companyName: "BrightPath Startups",
-    postedBy: "jobs@brightpath.in",
-  },
-  {
-    id: 5,
-    title: "Software Engineering Intern",
-    description:
-      "Develop new features for the company's SaaS product under the guidance of senior developers.",
-    skillsNeeded: ["JavaScript", "React", "Node.js"],
-    category: "IT",
-    location: "Remote",
-    companyName: "CloudEdge Systems",
-    postedBy: "careers@cloudedge.com",
-  },
-  {
-    id: 6,
-    title: "UX Design Intern",
-    description:
-      "Create user-centered designs and collaborate with the product team to enhance user experience.",
-    skillsNeeded: ["Figma", "User Research", "Wireframing"],
-    category: "Design",
-    location: "Hyderabad, India",
-    companyName: "DesignHub Studios",
-    postedBy: "design@designhub.com",
-  },
-];

@@ -1,7 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import Logo from "../assets/logo.png";
+
 export default function LoginPage() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Save token to localStorage
+      localStorage.setItem("token", data.token);
+
+      // alert("Login successful!");
+      window.location.href = "/dashboard"; // redirect after login
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F9FAFB] to-[#EFF6FF] px-4 sm:px-6 lg:px-8"
@@ -39,7 +80,7 @@ export default function LoginPage() {
             </div>
 
             {/* Form */}
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Email */}
               <div>
                 <label
@@ -53,7 +94,10 @@ export default function LoginPage() {
                   <input
                     type="email"
                     id="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder="Enter your email"
+                    required
                     className="pl-10 pr-4 py-3 w-full rounded-xl border border-gray-300 focus:border-[#1E3A8A] focus:ring-[#1E3A8A] text-sm shadow-sm"
                   />
                 </div>
@@ -72,7 +116,10 @@ export default function LoginPage() {
                   <input
                     type="password"
                     id="password"
+                    value={formData.password}
+                    onChange={handleChange}
                     placeholder="Enter your password"
+                    required
                     className="pl-10 pr-4 py-3 w-full rounded-xl border border-gray-300 focus:border-[#1E3A8A] focus:ring-[#1E3A8A] text-sm shadow-sm"
                   />
                 </div>
@@ -81,9 +128,10 @@ export default function LoginPage() {
               {/* Button */}
               <button
                 type="submit"
-                className="w-full bg-[#1E3A8A] text-white py-3 px-4 rounded-xl font-semibold shadow-md hover:bg-[#163172] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1E3A8A] transition"
+                disabled={loading}
+                className="w-full bg-[#1E3A8A] text-white py-3 px-4 rounded-xl font-semibold shadow-md hover:bg-[#163172] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1E3A8A] transition disabled:opacity-50"
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
 

@@ -8,14 +8,14 @@ import recommendRoutes from './routes/recommendRoutes.js';
 
 dotenv.config();
 
-const PORT= process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 const app = express();
 
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/',  (req, res) =>{
+app.get('/', (req, res) => {
     res.send("Welcome to SmartIntern!!");
 });
 
@@ -24,6 +24,6 @@ app.use("/api/internships", internshipRoutes);
 app.use("/api/recommend", recommendRoutes);
 
 
-app.listen(PORT, () =>{
-    console.log("Server is running on port "+PORT);
+app.listen(PORT, () => {
+    console.log("Server is running on port " + PORT);
 });

@@ -19,6 +19,7 @@ export default function RegistrationForm() {
   const [interestInput, setInterestInput] = useState("");
   const [passwordStrength, setPasswordStrength] = useState("");
   const [passwordMatch, setPasswordMatch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -93,13 +94,47 @@ export default function RegistrationForm() {
     setStep(2);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.resume) {
       alert("Please upload your resume before completing registration.");
       return;
     }
-    console.log("Form submitted:", formData);
-    // TODO: API call to backend with formData
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          education: formData.education || null,
+          skills: formData.skills,
+          interests: formData.interests,
+          location: formData.location || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      // Save token
+      localStorage.setItem("token", data.token);
+
+      alert("Registration successful!");
+      window.location.href = "/dashboard"; // redirect after signup
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -143,21 +178,19 @@ export default function RegistrationForm() {
             {/* Stepper */}
             <div className="flex items-center justify-center mb-8">
               <div
-                className={`w-9 h-9 flex items-center justify-center rounded-full font-semibold ${
-                  step === 1
-                    ? "bg-[#1E3A8A] text-white"
-                    : "bg-gray-300 text-gray-600"
-                }`}
+                className={`w-9 h-9 flex items-center justify-center rounded-full font-semibold ${step === 1
+                  ? "bg-[#1E3A8A] text-white"
+                  : "bg-gray-300 text-gray-600"
+                  }`}
               >
                 1
               </div>
               <div className="w-14 h-[2px] bg-gray-400 mx-3"></div>
               <div
-                className={`w-9 h-9 flex items-center justify-center rounded-full font-semibold ${
-                  step === 2
-                    ? "bg-[#1E3A8A] text-white"
-                    : "bg-gray-300 text-gray-600"
-                }`}
+                className={`w-9 h-9 flex items-center justify-center rounded-full font-semibold ${step === 2
+                  ? "bg-[#1E3A8A] text-white"
+                  : "bg-gray-300 text-gray-600"
+                  }`}
               >
                 2
               </div>
@@ -223,13 +256,12 @@ export default function RegistrationForm() {
                   </div>
                   {passwordStrength && (
                     <p
-                      className={`text-sm mt-1 ${
-                        passwordStrength === "weak"
-                          ? "text-red-500"
-                          : passwordStrength === "medium"
+                      className={`text-sm mt-1 ${passwordStrength === "weak"
+                        ? "text-red-500"
+                        : passwordStrength === "medium"
                           ? "text-yellow-600"
                           : "text-green-600"
-                      }`}
+                        }`}
                     >
                       {passwordStrength === "weak" &&
                         "Weak ❌ (min 8 chars, 1 capital, 1 number, 1 special char)"}
@@ -256,11 +288,10 @@ export default function RegistrationForm() {
                   />
                   {passwordMatch && (
                     <p
-                      className={`text-sm mt-1 ${
-                        passwordMatch === "mismatch"
-                          ? "text-red-500"
-                          : "text-green-600"
-                      }`}
+                      className={`text-sm mt-1 ${passwordMatch === "mismatch"
+                        ? "text-red-500"
+                        : "text-green-600"
+                        }`}
                     >
                       {passwordMatch === "mismatch"
                         ? "Passwords do not match ❌"
@@ -414,9 +445,10 @@ export default function RegistrationForm() {
                   </button>
                   <button
                     onClick={handleSubmit}
-                    className="px-6 py-2 bg-[#1E3A8A] text-white rounded-xl font-semibold hover:bg-[#163172] transition"
+                    disabled={loading}
+                    className="px-6 py-2 bg-[#1E3A8A] text-white rounded-xl font-semibold hover:bg-[#163172] transition disabled:opacity-50"
                   >
-                    Complete Registration
+                    {loading ? "Registering..." : "Complete Registration"}
                   </button>
                 </div>
               </>
