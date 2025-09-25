@@ -85,7 +85,7 @@ const Navbar = () => {
             Login
           </Link>
           <Link
-            to="/signup"
+            to="/register"
             className="px-4 py-2 bg-[#FF7500] text-white rounded-lg hover:bg-[#0F284A]"
           >
             Signup
@@ -119,7 +119,7 @@ const Navbar = () => {
             Login
           </Link>
           <Link
-            to="/signup"
+            to="/register"
             className="px-4 py-2 bg-[#FF7500] text-white rounded-lg hover:bg-[#0F284A]"
             onClick={toggleMenu}
           >

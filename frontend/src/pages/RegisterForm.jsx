@@ -405,7 +405,7 @@ export default function RegistrationForm() {
                   )}
                 </div>
 
-                <div className="flex justify-between">
+                <div className="flex justify-between flex-wrap gap-4">
                   <button
                     onClick={() => setStep(1)}
                     className="px-6 py-2 border border-gray-400 rounded-xl hover:bg-gray-100 transition"
