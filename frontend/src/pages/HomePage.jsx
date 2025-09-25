@@ -7,7 +7,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col items-center justify-center">
       <Navbar />
-      {/* <Home /> */}
+      <Home />
       <Footer />
     </div>
   );
