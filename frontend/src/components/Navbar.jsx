@@ -48,7 +48,7 @@ export default function Navbar() {
         </ul>
 
         {/* Auth Buttons (Desktop) */}
-        <div className="hidden md:flex space-x-4">
+        <div className="hidden md:flex space-x-4 ">
           <a
             href="/login"
             className="px-4 py-2 bg-[#FF7500] text-white rounded-lg hover:bg-[#0F284A]"
@@ -56,7 +56,7 @@ export default function Navbar() {
             Login
           </a>
           <a
-            href="/signup"
+            href="/register"
             className="px-4 py-2 bg-[#FF7500] text-white rounded-lg hover:bg-[#0F284A]"
           >
             Sign Up
